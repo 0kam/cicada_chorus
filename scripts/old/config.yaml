@@ -1,0 +1,39 @@
+# General information for model training
+"source_dir":  "../data/train/wav"
+"label_dir": "../data/train/label"
+"model_name": "efficientnet_b0"
+"val_ratio": 0.2
+"batch_size": 10
+"num_workers": 0
+"device": "cuda"
+# Information for model testing
+"test_source_dir": "../data/test/wav"
+"test_label_dir": "../data/test/label"
+# Dataset parameters
+"label_names": ["aburazemi", "higurashi", "kumazemi", "minminzemi", "niiniizemi", "tsukutsukuboushi"]
+"sr": 16000
+"win_size": 9.6
+"overlap_rate": 0.2
+# Hyperparameters of the model
+"model_name": "efficientnet_b4"
+"feature": "melspectrogram" # "spectrogram", or "melspectrogram"
+"threshold": 0.5
+"sr": 16000
+"highpass_cutoff": 600
+"lowpass_cutoff": 8000
+# Configurations of STFT
+"n_fft": 1024
+# Configurations of data augumentations
+"gain": [1.0, -10, 10]
+"pitch_shift": [0.5, -1, 1]
+"background_noise": [0] #[0.75, -10, 5]
+"colored_noise": [0.5, -5, 5]
+"time_masking": [0.5, 0.2]
+"peak_norm": 0.0
+# Hyperparameters of the model
+"n_layers": 1
+"h_dims": 64
+"batch_norm": True
+"drop_out": 0.5
+"learning_rate": 0.0005
+"freeze_base": False
