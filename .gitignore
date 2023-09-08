@@ -3,3 +3,4 @@ multirun
 __pycache__
 data
 outputs
+*.wav

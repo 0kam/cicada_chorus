@@ -1,0 +1,67 @@
+# Hyperparameter optimization
+defaults:
+  - override hydra/sweeper: optuna
+  - override hydra/sweeper/sampler: grid
+
+hydra:
+  sweeper:
+    #sampler:
+    #  seed: 123
+    #direction: maximize
+    study_name: resnet_optuna_grid
+    storage: null
+    n_trials: 16
+    n_jobs: 1
+
+    params:
+      # model.classifier_loss: choice("bce", "mse")
+      # model.margin: choice(0.5, 1.0, 2.5, 5.0, 10.0)
+      model.pretrained: choice(True, False)
+      model.use_contrastive_loss: choice(True, False)
+
+# mlflow settings
+mlflow:
+  experiment_name: cicada_chorus_siamese
+
+# General information for model training
+general:
+  source_dir: /home/okamoto/cicada_chorus/data/train/wav
+  label_dir: /home/okamoto/cicada_chorus/data/train/label
+  batch_size: 30
+  num_workers: 0
+  epochs: 20
+  device: cuda
+  val_source_dir: /home/okamoto/cicada_chorus/data/test/wav
+  val_label_dir: /home/okamoto/cicada_chorus/data/test/label
+  threshold: 0.5
+# Dataset parameters
+dataset:
+  label_names: [aburazemi, higurashi, kumazemi, minminzemi, niiniizemi, tsukutsukuboushi]
+  sr: 16000
+  win_sec: 4.8
+  stride_sec: 4.8
+  audio_sec: 30
+# Feature extraction
+feature:
+  feature: melspectrogram # spectrogram, or melspectrogram
+  highpass_cutoff: 600 # Use null for not setting
+  lowpass_cutoff: null # Use null for not setting
+  n_fft: 512
+  n_mels: 256
+# Configurations of data augumentations
+augumentation:
+  gain: [1.0, -10, 10]
+  pitch_shift: [0.5, -1, 1]
+  colored_noise: [0.5, -5, 5]
+  time_masking: [0.5, 0.2]
+  peak_norm: 0.0
+# Hyperparameters of the model
+model:
+  model_name: resnet50
+  h_dims: 64
+  learning_rate: 0.001
+  pretrained: True
+  classifier_loss: mse # mse, bce
+  distance_metric: l2 # l1, l2, cosine
+  margin: 3.0
+  use_contrastive_loss: True

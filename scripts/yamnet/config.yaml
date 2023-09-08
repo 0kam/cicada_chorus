@@ -16,7 +16,7 @@ hydra:
     params:
       # model.loss: choice("bce", "mse")
       model.pretrained: choice(True, False)
-      dataset.win_sec: choice(0.96, 1.44, 1.92)
+      dataset.win_sec: choice(2.4, 3.6, 4.8, 6.0)
 
 # mlflow settings
 mlflow:

@@ -1,5 +1,5 @@
 from data import AudioSegmentationDataset, AudioPredictionDataset
-from utils import Transpose, Unsqueeze, Squeeze
+from utils.utils import Transpose, Unsqueeze, Squeeze
 from yamnet.features import YAMNestFeatureExtractor
 
 import torch

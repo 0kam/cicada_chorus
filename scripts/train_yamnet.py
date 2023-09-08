@@ -1,5 +1,5 @@
 from yamnet.yamnet import YAMNetClassifier
-from utils import log_params_from_omegaconf_dict
+from utils.utils import log_params_from_omegaconf_dict
 
 import hydra
 from omegaconf import DictConfig
@@ -65,7 +65,7 @@ def train(cfg: DictConfig):
         for c in model.c.dataset.label_names:
             for m in ["precision", "recall", "f1"]:
                 value = res[res["label"]==c][m].values[0]
-                # mlflow.log_metric('HS01_{}_{}'.format(m, c), value)
+                mlflow.log_metric('HS01_{}_{}'.format(m, c), value)
                 if (m == "f1") and (c != "higurashi") and (c != "kumazemi"):
                     f1s.append(value)
         f1_mean = sum(f1s) / len(f1s)

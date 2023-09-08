@@ -1,9 +1,8 @@
 from cnn.cnn import PretrainedCNNClassifier
-from utils import log_params_from_omegaconf_dict
+from utils.utils import log_params_from_omegaconf_dict
 
 import hydra
 from omegaconf import DictConfig
-import optuna
 import mlflow
 from datetime import datetime
 import pandas as pd

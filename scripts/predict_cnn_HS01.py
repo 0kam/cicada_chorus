@@ -7,7 +7,7 @@ import torch
 import numpy as np
 import torchaudio
 
-d = "/home/okamoto/cicada_chorus/mlruns/509252668566553017/a1c55357fb3b46b5b0ab6a99dff10045/"
+d = "/home/okamoto/cicada_chorus/mlruns/347298962134178980/977c7e593c2c4476bc1c6a556d4f2edf/"
 
 cfg = omegaconf.OmegaConf.load(d + "artifacts/config.yaml")
 logged_model = d + "artifacts/best_model"
@@ -23,11 +23,13 @@ dataset = AudioPredictionDataset(
     sr = 16000
 )
 
+# Prediction
 model.c.dataset.label_names
 preds = model.predict(dataset)
 
 y_preds = preds.max(axis=1).values
 
+# Classification scores
 df = pd.read_csv('/home/okamoto/HDD4TB/Cicadasong_Detect/data/handwork/handwork_HS01.csv')
 y_true = df.filter(['Aburazemi', 'Higurashi', 'Kumazemi', 'Minminzemi', 'Niiniizemi', 'Tsukutsukuboushi']).to_numpy()
 y_true = torch.tensor(y_true, dtype=torch.float32)
