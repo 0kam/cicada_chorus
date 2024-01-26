@@ -17,7 +17,7 @@ def train(cfg: DictConfig):
     model = SiameseCNNModel(cfg)
     mlflow.set_tracking_uri("file:// /home/okamoto/cicada_chorus/mlruns")
     mlflow.set_experiment(cfg.mlflow.experiment_name)
-    best_val_f1_mean = 0.0
+    best_val_loss = 1000.0
     with mlflow.start_run(run_name="{}_{}_{}".format(cfg.model.model_name, cfg.feature.feature, datetime.now().strftime("%Y%m%d%H%M%S"))):
         mlflow.log_artifact(".hydra/config.yaml")
         mlflow.log_artifact(".hydra/hydra.yaml")
@@ -36,16 +36,18 @@ def train(cfg: DictConfig):
                     if m == "f1":
                         f1s.append(value)
             f1_mean = sum(f1s) / len(f1s)
-            mlflow.log_table(res, artifact_file='val_result.csv')
-            mlflow.log_figure(feature_fig, artifact_file='feature.png')
+            mlflow.log_table(res, artifact_file='val_result_epoch_{}.csv'.format(epoch))
+            mlflow.log_figure(feature_fig, artifact_file='feature_epoch_{}.png'.format(epoch))
             mlflow.pytorch.log_model(model.model, "model_epoch_{}".format(epoch))
-            if f1_mean >= best_val_f1_mean:
-                best_val_f1_mean = f1_mean
+            if val_loss <= best_val_loss:
+                best_val_loss = val_loss
                 best_model = model.model
                 best_h_mean = h_mean
                 best_h_std = h_std
                 mlflow.pytorch.log_model(model.model, "best_model")
-                mlflow.log_metric('best_test_f1', best_val_f1_mean, step=epoch)
+                mlflow.log_metric('best_val_loss', best_val_loss, step=epoch)
+                mlflow.log_table(res, artifact_file='best_val_result.csv'.format(epoch))
+                mlflow.log_figure(feature_fig, artifact_file='best_feature.png'.format(epoch))
 
         # Prediction of HS01
         dataset = AudioPredictionDataset(
@@ -74,7 +76,7 @@ def train(cfg: DictConfig):
                     f1s.append(value)
         f1_mean = sum(f1s) / len(f1s)
         mlflow.log_metric('HS01_f1_mean', f1_mean)
-    return best_val_f1_mean
+    return best_val_loss
 
 if __name__ == '__main__':
     train()

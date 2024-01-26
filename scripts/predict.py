@@ -1,5 +1,5 @@
 import mlflow
-from data import AudioPredictionDataset
+from utils.data import AudioPredictionDataset
 import omegaconf
 from cnn.cnn import PretrainedCNNClassifier
 import pandas as pd
@@ -37,15 +37,17 @@ def predict_dir(dir_path):
     print("processing {} ...".format(site_name))
     # Prediction
     preds = model.predict(dataset)
-    y = preds.max(axis=1).values
-    y = (y > 0.5).float()
-    df = pd.DataFrame({'file_name': dataset.source_files})
+    #y = preds.max(axis=1).values
+    #y = (y > 0.5).float()
+    filenames = np.tile(np.array(dataset.source_files).reshape(-1, 1), (1, preds.shape[1])).reshape(-1)
+    index = np.tile(np.arange(preds.shape[1]).reshape(1, -1), (preds.shape[0], 1)).reshape(-1)
+    df = pd.DataFrame({'file_name': filenames, 'index': index})
+    preds2 = preds.reshape(-1, preds.shape[2])
     for i, label in enumerate(model.c.dataset.label_names):
-        df[label] = y[:, i]
+        df[label] = preds2[:, i]
     out_path = '{}/{}.csv'.format(out_dir, site_name)
     df.to_csv(out_path, index=False)
 
-dirs = glob("/media/okamoto/HDD10TB/cicadasong2023/*")
+dirs = sorted(glob("/media/HDD10TB/cicadasong2023/NE*"))
 for target_dir in dirs:
-    if target_dir != '/media/okamoto/HDD10TB/cicadasong2023/NE04_yamao':
-        predict_dir(target_dir + "/")
+    predict_dir(target_dir + "/")

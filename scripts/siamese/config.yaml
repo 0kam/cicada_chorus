@@ -29,7 +29,7 @@ general:
   label_dir: /home/okamoto/cicada_chorus/data/train/label
   batch_size: 30
   num_workers: 0
-  epochs: 20
+  epochs: 5
   device: cuda
   val_source_dir: /home/okamoto/cicada_chorus/data/test/wav
   val_label_dir: /home/okamoto/cicada_chorus/data/test/label
@@ -63,5 +63,5 @@ model:
   pretrained: True
   classifier_loss: mse # mse, bce
   distance_metric: l2 # l1, l2, cosine
-  margin: 3.0
+  margin: 1.0
   use_contrastive_loss: True

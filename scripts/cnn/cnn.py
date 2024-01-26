@@ -1,4 +1,4 @@
-from data import AudioSegmentationDataset, AudioPredictionDataset
+from utils.data import AudioSegmentationDataset, AudioPredictionDataset
 from utils.utils import Transpose, Unsqueeze, Squeeze
 
 import torch

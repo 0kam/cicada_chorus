@@ -7,7 +7,7 @@ import mlflow
 from datetime import datetime
 import pandas as pd
 import torch
-from data import AudioPredictionDataset
+from utils.data import AudioPredictionDataset
 
 import omegaconf
 cfg = omegaconf.OmegaConf.load('/home/okamoto/cicada_chorus/scripts/cnn/config.yaml')
@@ -52,7 +52,7 @@ def train(cfg: DictConfig):
             sr = 16000
         )
 
-        model.c.dataset.label_names
+        # using the last model
         preds = model.predict(dataset)
 
         y_preds = preds.max(axis=1).values
@@ -66,11 +66,32 @@ def train(cfg: DictConfig):
         for c in model.c.dataset.label_names:
             for m in ["precision", "recall", "f1"]:
                 value = res[res["label"]==c][m].values[0]
-                mlflow.log_metric('HS01_{}_{}'.format(m, c), value)
+                mlflow.log_metric('HS01_last_{}_{}'.format(m, c), value)
                 if (m == "f1") and (c != "higurashi") and (c != "kumazemi"):
                     f1s.append(value)
         f1_mean = sum(f1s) / len(f1s)
-        mlflow.log_metric('HS01_f1_mean', f1_mean)
+        mlflow.log_metric('HS01_last_f1_mean', f1_mean)
+
+        # using the best model
+        model.model = best_model
+        preds = model.predict(dataset)
+
+        y_preds = preds.max(axis=1).values
+
+        df = pd.read_csv('/home/okamoto/HDD4TB/Cicadasong_Detect/data/handwork/handwork_HS01.csv')
+        y_true = df.filter(['Aburazemi', 'Higurashi', 'Kumazemi', 'Minminzemi', 'Niiniizemi', 'Tsukutsukuboushi']).to_numpy()
+        y_true = torch.tensor(y_true, dtype=torch.float32)
+
+        res = model.classification_scores(y_true, y_preds, threshold=0.5)
+        f1s = []
+        for c in model.c.dataset.label_names:
+            for m in ["precision", "recall", "f1"]:
+                value = res[res["label"]==c][m].values[0]
+                mlflow.log_metric('HS01_best_{}_{}'.format(m, c), value)
+                if (m == "f1") and (c != "higurashi") and (c != "kumazemi"):
+                    f1s.append(value)
+        f1_mean = sum(f1s) / len(f1s)
+        mlflow.log_metric('HS01_best_f1_mean', f1_mean)
     return best_val_f1_mean
 
 if __name__ == '__main__':

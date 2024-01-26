@@ -1,0 +1,100 @@
+# Hyperparameter optimization
+defaults:
+  - override hydra/sweeper: optuna
+  - override hydra/sweeper/sampler: tpe
+
+hydra:
+  sweeper:
+    #sampler:
+    #  seed: 123
+    direction: maximize
+    study_name: data_tuning_run2
+    storage: null
+    n_trials: 50
+    n_jobs: 1
+
+    params:
+      general.others_ratio: range(0, 0.3, 0.1)
+      generation.bgs.weights.city: range(0, 1, 0.25)
+      generation.bgs.weights.real_rec_2022: range(0, 1, 0.25)
+      generation.bgs.weights.real_rec_2023: range(0, 1, 0.25)
+      generation.bgs.weights.roadside: range(0, 1, 0.25)
+      generation.bgs.weights.windy: range(0, 1, 0.25)
+      generation.others.weights.music: range(0, 1, 0.25)
+      generation.others.weights.birds: range(0, 1, 0.25)
+      generation.others.weights.esc50: range(0, 1, 0.25)
+      generation.others.weights.insects: range(0, 1, 0.25)
+      generation.others.weights.speech: range(0, 1, 0.25)
+      generation.cicadas.popsize.max: range(2, 42, 10)
+      generation.cicadas.distance.max: range(30.0, 100.0, 10.0)
+
+# mlflow settings
+mlflow:
+  experiment_name: data_tuning_run2
+
+# General information for model training
+general:
+  background_dir: /home/okamoto/cicada_chorus/data/tuning/background
+  cicada_dir: /home/okamoto/cicada_chorus/data/tuning/cicada_song
+  others_dir: /home/okamoto/cicada_chorus/data/tuning/others
+  sr: 16000
+  cicada_ratio: 0.7
+  others_ratio: 0.3
+
+# Audio generation settings
+generation:
+  length: 30 # in seconds
+  n_train: 10000
+  n_test: 2000
+
+  cicadas:
+    weights: # weights of each cicada species
+      aburazemi: 1
+      higurashi: 1
+      kumazemi: 1
+      minminzemi: 1
+      niiniizemi: 1
+      tsukutsukuboushi: 1
+    popsize:
+      min: 1 # minimum number of cicadas
+      max: 30 # maximum number of cicadas
+    distance:
+      min: 10.0 # minimum distance between the mic and cicadas in meters.
+      max: 60.0 # maximum distance between the mic and cicadas in meters.
+    n_species:
+      min: 1 # minimum number of cicada species
+      max: 4 # maximum number of cicada species
+  
+  bgs:
+    weights:
+      city: 1
+      real_rec_2022: 1
+      real_rec_2023: 1
+      roadside: 1
+      windy: 1
+  
+  others:
+    weights:
+      music: 1
+      birds: 1
+      esc50: 1
+      insects: 1
+      speech: 1
+    popsize:
+      min: 1
+      max: 20
+    distance:
+      min: 10.0
+      max: 60.0
+    n_species:
+      min: 1
+      max: 4
+
+# Augumentation settings
+augs:
+  time_stretch:
+    min: 0.8
+    max: 1.2
+  pitch_shift:
+    min: -1
+    max: 1

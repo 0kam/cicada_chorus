@@ -192,16 +192,15 @@ class SiameseCNNModel:
         """
         y1_loss = self.criterion(y1_pred.to(torch.double), y1_true.to(torch.double))
         y2_loss = self.criterion(y2_pred.to(torch.double), y2_true.to(torch.double))
-        
-        distance = self.distance_metric(h1, h2).mean(-1) # shape=[n_batch, y_dims, h_dims]
-        m = matches.reshape(-1, self.y_dims).to(self.c.general.device)
-
-        # contrastive loss
-        # m is the label of whether the pair is the same or not (if same, 1, else 0)
-        contrastive_loss = (m) * torch.pow(distance, 2) + (1 - m) * torch.pow(torch.clamp(self.c.model.margin - distance, min=0.0), 2) # shape=[n_batch, y_dims]
-        contrastive_loss = contrastive_loss.mean() # shape=[n_batch]
 
         if self.c.model.use_contrastive_loss:
+            distance = self.distance_metric(h1, h2).mean(-1) # shape=[n_batch, y_dims, h_dims]
+            m = matches.reshape(-1, self.y_dims).to(self.c.general.device)
+            # contrastive loss
+            # m is the label of whether the pair is the same or not (if same, 1, else 0)
+            m = torch.tensor(self.c.model.margin, requires_grad=True).to(self.c.general.device)
+            contrastive_loss = (m) * torch.pow(distance, 2) + (1 - m) * torch.pow(torch.clamp(m, min=0.0), 2) # shape=[n_batch, y_dims]
+            contrastive_loss = contrastive_loss.mean() # shape=[n_batch]
             loss = y1_loss + y2_loss + contrastive_loss
         else:
             loss = y1_loss + y2_loss
